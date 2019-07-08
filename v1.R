@@ -3,6 +3,11 @@ library(readr)
 library(dplyr)
 library(ggplot2)
 library(gghighlight)
+library(tools)
+library(magrittr)
+library(ggthemes)
+library(stringr)
+
 
 full_trains <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-02-26/full_trains.csv")
 
@@ -36,5 +41,26 @@ full_trains %>%
        subtitle = "National Service trains highlighted in red")
 
 # Challenge 3
+
+full_trains %>% 
+  filter(grepl('PARIS', departure_station)) %>%
+  #filter(str_detect(departure_station, "PARIS")) %>%
+  mutate(departure_station = toTitleCase(tolower(departure_station))) %>%
+  group_by(month, year, departure_station) %>%
+  summarise(mean_num_of_canceled_trains = mean(num_of_canceled_trains, na.rm = TRUE)) %>%
+  ggplot(aes(x = mean_num_of_canceled_trains, 
+             y = departure_station,
+             colour = departure_station)) +
+  geom_jitter(width = .2, alpha = .6, size = 3, stroke = 1) +
+  guides(colour=FALSE) + 
+  scale_color_tableau() +
+  facet_wrap(~ year) +
+  theme(text = element_text(size = 12)) +
+  labs(x=NULL, y = NULL, title = "Cancelled Trains from Pairs Railway Station by Year/Month", 
+       subtitle = "Average Number of Callcellations per Month")
+
+# Challenge 4
+
+
 
 
